@@ -9,7 +9,12 @@
                 <field name="milestone"/>
             </xpath>
             <xpath expr="//header" position="inside">
-                <button name="action_create_so_project" type="object" string="Create Project" class="btn-primary"/>
+                <button name="action_create_so_project"
+                        type="object"
+                        string="Create Project"
+                        class="btn-primary"
+                        invisible="state != 'sale' or created == True"
+                />
             </xpath>
         </field>
     </record>
