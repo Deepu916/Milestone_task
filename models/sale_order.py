@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Sale Order"""
-from odoo import  fields,models
+from odoo import  fields,models,api
 
 
 class SaleOrder(models.Model):
@@ -19,6 +19,7 @@ class SaleOrder(models.Model):
             'partner_id': self.partner_id.id,
             'company_id':self.company_id.id,
             'user_id': self.env.user.id,
+
         })
         self.created = True
         names = ['New','In Progress','Done','Cancelled']
@@ -31,11 +32,20 @@ class SaleOrder(models.Model):
                 parent = self.env['project.task'].create({
                     'name': "Milestone " + str(milestone_key),
                     'project_id': self.project_id.id,
+                    'sale_order_id':self.id,
+                    'sale_line_id':line.id,
+
                 })
                 milestones[milestone_key] = parent
             self.env['project.task'].create({
                 'name': "Milestone " + str(milestone_key)+ "-" + line.product_template_id.name,
                 'project_id': self.project_id.id,
                 'parent_id': milestones[milestone_key].id,
+                'sale_order_id': self.id,
+                'sale_line_id': line.id,
             })
-        
+    def action_update_so_project(self):
+        """Update project from sale order"""
+        for line in self.order_line:
+            if line.id not in self.project_id.sale_line_id:
+                
