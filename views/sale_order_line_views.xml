@@ -16,6 +16,14 @@
                         invisible="state != 'sale' or created == True"
                 />
             </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_update_so_project"
+                        type="object"
+                        string="Update Project"
+                        class="btn-primary"
+                        invisible="state != 'sale' or created == False"
+                />
+            </xpath>
         </field>
     </record>
 </odoo>

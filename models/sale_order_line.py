@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Sale Order Line Model."""
-from odoo import api, fields, models
+from odoo import  fields, models
 
 
 class SaleOrderLine(models.Model):
