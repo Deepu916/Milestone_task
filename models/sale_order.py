@@ -73,7 +73,7 @@ class SaleOrder(models.Model):
                 self.parents[milestone_key] = parent
             # Parent task creation if parent task is deleted and creating task for the same milestone of deleted parent task
             if (self.parents[milestone_key] not in
-                    self.env['project.task'].search([('project_id','=',self.project_id.id)])
+                    self.project_id.task_ids
                     and line.milestone >0) :
                 parent = self.env['project.task'].create({
                     'name': "Milestone " + str(milestone_key),
@@ -84,7 +84,6 @@ class SaleOrder(models.Model):
                 self.parents[milestone_key] = parent
             existing_parent_id = self.parents[milestone_key]
             existing_task = task_mapping.get(line.id)
-            print(existing_task)
             if not existing_task and line.milestone > 0:
                 task.create({
                     'name': "Milestone " + str(milestone_key) + "-" + line.product_template_id.name,
@@ -94,15 +93,16 @@ class SaleOrder(models.Model):
                     'sale_line_id': line.id,
                 })
                 self.line_milestone[line.id] = line.milestone
-            else:
-                if self.line_milestone[line.id] != line.milestone:
-                    existing_task.write({
-                        'name': "Milestone " + str(milestone_key) + "-" + line.product_template_id.name,
-                        'project_id': self.project_id.id,
-                        'parent_id': existing_parent_id.id,
-                        'sale_order_id': self.id,
-                        'sale_line_id': line.id,
-                    })
+
+            if (self.line_milestone[line.id] != line.milestone) and line.milestone > 0:
+                print(existing_task.child_ids)
+                existing_task.write({
+                    'name': "Milestone " + str(milestone_key) + "-" + line.product_template_id.name,
+                    'parent_id': existing_parent_id.id,
+                    'sale_order_id': self.id,
+                    # 'sale_line_id': line.id,
+                })
+                self.line_milestone[line.id] = line.milestone
         print(self.line_milestone)
         task_to_delete = existing_tasks.filtered(lambda task: task.sale_line_id.milestone == 0)
         task_to_delete.unlink()
